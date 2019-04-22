@@ -3,6 +3,8 @@
 #include <cmath>
 #include <math.h>
 #include <Eigen/Eigen>
+#include <limits>
+
 
 #include "mpi_cpp_tools/basic_tools.hpp"
 #include "mpi_cpp_tools/math.hpp"
@@ -12,6 +14,10 @@ namespace mct
 {
 
 
+union myUnion {
+    double dValue;
+    uint64_t iValue;
+};
 
 
 
@@ -48,12 +54,39 @@ public:
                 initial_acceleration_ * t +
                 initial_velocity_;
     }
-    double get_position(mct::NonnegDouble t) const
+    double get_position(double t) const
     {
-        return jerk_ * 0.5 * 1./3. * pow(t, 3) +
-                initial_acceleration_ * 0.5 * pow(t, 2) +
+
+        std::cout.precision(std::numeric_limits<double>::max_digits10 + 2);
+
+
+
+
+
+        double pow3 = t * t * t;
+        double pow2 = t * t;
+
+
+        myUnion bla;
+        bla.iValue = 4619552210890228616;
+        std::cout << "computing garbage " << std::endl;
+        double garbage_pow = std::pow(bla.dValue, 3.01);
+        std::cout << "done computing garbage " << bla.iValue << std::endl;
+
+
+        std::cout << "computing position " << std::endl;
+
+
+        double position = jerk_ * 0.5 * (1./3.) * pow3 +
+                initial_acceleration_ * 0.5 * pow2 +
                 initial_velocity_ * t +
                 initial_position_;
+
+
+        std::cout << "done computing position " << std::endl;
+
+
+        return position;
     }
 
     Vector find_t_given_velocity(double velocity) const
@@ -180,6 +213,7 @@ public:
         {
             return acceleration_limit_;
         }
+
     }
     double get_velocity(mct::NonnegDouble t) const
     {
@@ -207,14 +241,52 @@ public:
         }
     }
 
-    template<typename Array>
-    Array get_positions(const Array& times) const
+//    template<typename Array>
+    Vector get_positions(const Vector& times) const
     {
-        Array positions(times.size());
+
+//        std::cout << "beginning ---------------" << std::endl;
+//        std::cout << times.size() << std::endl;
+
+
+//        std::cout << "type: " << typeid(times).name() << std::endl;
+
+//        std::cout << times << std::endl;
+//        std::cout << "done printing ---------------" << std::endl;
+
+        Vector positions(times.size());
+
+
+//        std::cout << "printing positions ---------------" << std::endl;
+//        std::cout << positions << std::endl;
+//        std::cout << "done positions ---------------" << std::endl;
+
+
+//        positions.resize(times.size());
         for(size_t i = 0; i < times.size(); i++)
         {
-            positions[i] = get_position(times[i]);
+//            std::cout << "getting time " << std::endl;
+            double time = times[i];
+
+//            std::cout << "getting position " << std::endl;
+
+
+
+            double position = get_position(time);
+//            std::cout << "setting positions" << std::endl;
+
+//            std::cout << "setting position " << std::endl;
+
+            positions[i] = position;
+
+//            std::cout << "done " << std::endl;
+
+//            std::cout << "done setting positions" << std::endl;
+
         }
+
+//        std::cout << "end ---------------" << std::endl;
+
         return positions;
     }
 
@@ -288,16 +360,7 @@ public:
             throw std::domain_error("not implemented for jerk == 0");
         }
 
-        // find maximum achieved position --------------------------------------
-        ///\todo we could do this in a cleaner way with candidate points
-        //        Matrix candidate_points(0, 0);
-        //        Vector candidate_times(0);
-
-        //        mct::append_rows_to_matrix(candidate_points,
-        //                              Eigen::Vector2d(initial_velocity_,
-        //                                              initial_position_).transpose());
-        //        mct::append_to_vector(candidate_times, 0);
-
+        print_parameters();
 
         if(initial_velocity_ > max_velocity &&
                 initial_position_ > max_position)
@@ -383,42 +446,24 @@ double find_max_admissible_acceleration(
         const mct::NonnegDouble& abs_jerk_limit,
         const mct::NonnegDouble& abs_acceleration_limit)
 {
-    double lower = -abs_acceleration_limit;
-    double upper = abs_acceleration_limit;
 
 
-    LinearDynamicsWithAccelerationConstraint dynamics(-abs_jerk_limit,
-                                                      lower,
-                                                      initial_velocity,
-                                                      initial_position,
-                                                      abs_acceleration_limit);
+    LinearDynamicsWithAccelerationConstraint dynamics(-1,
+                                                      45,
+                                                      -1,
+                                                      -1,
+                                                      90);
+
+    dynamics.will_exceed_jointly(6, -std::numeric_limits<double>::infinity());
 
 
-    if(dynamics.will_exceed_jointly(max_velocity, max_position))
-    {
-        /// \todo: not quite sure what is the right thing to do here
-        return lower;
-    }
 
-    dynamics.set_initial_acceleration(upper);
-    if(!dynamics.will_exceed_jointly(max_velocity, max_position))
-    {
-        return upper;
-    }
-
+    double lower;
+    double upper;
+    double middle;
     for(size_t i = 0; i < 20; i++)
     {
         double middle = (lower + upper) / 2.0;
-
-        dynamics.set_initial_acceleration(middle);
-        if(dynamics.will_exceed_jointly(max_velocity, max_position))
-        {
-            upper = middle;
-        }
-        else
-        {
-            lower = middle;
-        }
     }
     return lower;
 }
@@ -433,10 +478,11 @@ double find_min_admissible_acceleration(
         const mct::NonnegDouble& abs_jerk_limit,
         const mct::NonnegDouble& abs_acceleration_limit)
 {
-    return -find_max_admissible_acceleration(-initial_velocity,
-                                             -initial_position,
-                                             -min_velocity,
-                                             -min_position,
+    double min_position_ = min_position;
+    find_max_admissible_acceleration(initial_velocity,
+                                             initial_position,
+                                             min_velocity,
+                                             min_position,
                                              abs_jerk_limit,
                                              abs_acceleration_limit);
 }
@@ -479,77 +525,21 @@ public:
                            const double& velocity,
                            const double& position)
     {
-        double safe_torque = mct::clamp(torque, -max_torque_, max_torque_);
-
-//        std::cout << "safe_torque: " << safe_torque << std::endl;
 
 
-        mct::NonnegDouble max_achievable_acc = max_torque_ / inertia_;
+//        mct::NonnegDouble max_achievable_acc = max_torque_ / inertia_;
 
 
 
-
-        double max_admissible_acc =
-                find_max_admissible_acceleration(velocity,
-                                                 position,
-                                                 max_velocity_,
-                                                 max_position_,
-                                                 max_jerk_,
-                                                 max_achievable_acc);
-        double max_admissible_torque = max_admissible_acc * inertia_;
-
-
-
-//        LinearDynamicsWithAccelerationConstraint
-//                test_dynamics(- max_jerk_,
-//                              max_achievable_acc,
-//                              velocity,
-//                              position,
-//                              max_achievable_acc);
-
-//        test_dynamics.print_parameters();
-//        std::cout << "will exceed: " << test_dynamics.will_exceed_jointly(max_velocity_, max_position_) << std::endl;
-//        std::cout << "max_admissible_acc: " << max_admissible_acc << std::endl;
-
-
-//        std::cout << "max_achievable_acc: " << max_achievable_acc << std::endl;
-//        std::cout << "max_admissible_acc: " << max_admissible_acc << std::endl;
-//        std::cout << "max_admissible_torque: " << max_admissible_torque << std::endl;
-
-
-
-        double min_admissible_acc =
-                find_min_admissible_acceleration(velocity,
+       find_min_admissible_acceleration(velocity,
                                                  position,
                                                  min_velocity_,
                                                  min_position_,
                                                  max_jerk_,
-                                                 max_achievable_acc);
-        double min_admissible_torque = min_admissible_acc * inertia_;
-
-//        std::cout << "min_admissible_acc: " << min_admissible_acc << std::endl;
-//        std::cout << "min_admissible_torque: " << min_admissible_torque << std::endl;
+                                                 max_torque_ / inertia_);
 
 
 
-        if(min_admissible_torque > max_admissible_torque)
-        {
-            std::cout << "min_admissible_torque > max_admissible_torque!!!!"
-                      << std::endl;
-            return 0;
-        }
-
-        safe_torque = mct::clamp(safe_torque,
-                            min_admissible_torque, max_admissible_torque);
-
-
-        if(safe_torque > max_torque_ || safe_torque < -max_torque_)
-        {
-            std::cout << "something went horribly horribly wrong " << std::endl;
-            return 0;
-        }
-
-        return safe_torque;
     }
 
     double min_velocity_;
