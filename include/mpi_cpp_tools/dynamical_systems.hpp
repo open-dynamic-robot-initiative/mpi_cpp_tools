@@ -43,12 +43,12 @@ public:
         initial_velocity_ = initial_velocity;
         initial_position_= initial_position;
     }
-    double get_acceleration(mct::NonnegDouble t) const
+    double get_acceleration(double t) const
     {
         return  jerk_ * t +
                 initial_acceleration_;
     }
-    double get_velocity(mct::NonnegDouble t) const
+    double get_velocity(double t) const
     {
         return jerk_ * 0.5 * pow(t,2) +
                 initial_acceleration_ * t +
@@ -177,7 +177,7 @@ public:
                                              double initial_acceleration,
                                              double initial_velocity,
                                              double initial_position,
-                                             mct::NonnegDouble abs_acceleration_limit):
+                                             double abs_acceleration_limit):
         LinearDynamics(jerk,
                        initial_acceleration,
                        initial_velocity,
@@ -203,7 +203,7 @@ public:
                 (acceleration_limit_ - initial_acceleration_) / jerk_;
     }
 
-    double get_acceleration(mct::NonnegDouble t) const
+    double get_acceleration(double t) const
     {
         if(t < jerk_duration_)
         {
@@ -215,7 +215,7 @@ public:
         }
 
     }
-    double get_velocity(mct::NonnegDouble t) const
+    double get_velocity(double t) const
     {
         if(t < jerk_duration_)
         {
@@ -227,7 +227,7 @@ public:
                     acceleration_limit_ * (t - jerk_duration_);
         }
     }
-    double get_position(mct::NonnegDouble t) const
+    double get_position(double t) const
     {
         if(t < jerk_duration_)
         {
@@ -433,7 +433,7 @@ public:
 
 private:
     double acceleration_limit_;
-    mct::NonnegDouble jerk_duration_;
+    double jerk_duration_;
 };
 
 
@@ -443,8 +443,8 @@ double find_max_admissible_acceleration(
         const double& initial_position,
         const double& max_velocity,
         const double& max_position,
-        const mct::NonnegDouble& abs_jerk_limit,
-        const mct::NonnegDouble& abs_acceleration_limit)
+        const double& abs_jerk_limit,
+        const double& abs_acceleration_limit)
 {
 
 
@@ -475,16 +475,11 @@ double find_min_admissible_acceleration(
         const double& initial_position,
         const double& min_velocity,
         const double& min_position,
-        const mct::NonnegDouble& abs_jerk_limit,
-        const mct::NonnegDouble& abs_acceleration_limit)
+        const double& abs_jerk_limit,
+        const double& abs_acceleration_limit)
 {
     double min_position_ = min_position;
-    find_max_admissible_acceleration(initial_velocity,
-                                             initial_position,
-                                             min_velocity,
-                                             min_position,
-                                             abs_jerk_limit,
-                                             abs_acceleration_limit);
+    find_max_admissible_acceleration(0, 0, 0, 0, 0, 0);
 }
 
 
@@ -507,9 +502,9 @@ public:
                      double min_position,
                      double max_velocity,
                      double max_position,
-                     mct::NonnegDouble max_torque,
-                     mct::NonnegDouble max_jerk,
-                     mct::NonnegDouble inertia)
+                     double max_torque,
+                     double max_jerk,
+                     double inertia)
     {
         min_velocity_ = min_velocity;
         min_position_ = min_position;
@@ -527,7 +522,7 @@ public:
     {
 
 
-//        mct::NonnegDouble max_achievable_acc = max_torque_ / inertia_;
+//        double max_achievable_acc = max_torque_ / inertia_;
 
 
 
@@ -546,9 +541,9 @@ public:
     double min_position_;
     double max_velocity_;
     double max_position_;
-    mct::NonnegDouble max_torque_;
-    mct::NonnegDouble max_jerk_;
-    mct::NonnegDouble inertia_;
+    double max_torque_;
+    double max_jerk_;
+    double inertia_;
 };
 
 
