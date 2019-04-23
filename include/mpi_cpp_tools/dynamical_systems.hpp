@@ -22,6 +22,31 @@ union myUnion {
 
 
 
+
+double f_0(double t)
+{
+    double dummy1;
+    double dummy2 = 1.0;
+
+
+    myUnion the_number_which_causes_segfault;
+    the_number_which_causes_segfault.iValue = 4619552210890228616;
+    std::cout << "calling pow with "
+              << the_number_which_causes_segfault.dValue << std::endl;
+    double garbage_pow = std::pow(the_number_which_causes_segfault.dValue, 3.01);
+    std::cout << "done calling pow "  << std::endl;
+
+}
+
+
+double f_1(double t)
+{
+        return f_0(0);
+}
+
+
+
+
 class LinearDynamics
 {
 public:
@@ -56,37 +81,17 @@ public:
     }
     double get_position(double t) const
     {
-
-        std::cout.precision(std::numeric_limits<double>::max_digits10 + 2);
-
-
+        double dummy1;
+        double dummy2 = 1.0;
 
 
+        myUnion the_number_which_causes_segfault;
+        the_number_which_causes_segfault.iValue = 4619552210890228616;
+        std::cout << "calling pow with "
+                  << the_number_which_causes_segfault.dValue << std::endl;
+        double garbage_pow = std::pow(the_number_which_causes_segfault.dValue, 3.01);
+        std::cout << "done calling pow "  << std::endl;
 
-        double pow3 = t * t * t;
-        double pow2 = t * t;
-
-
-        myUnion bla;
-        bla.iValue = 4619552210890228616;
-        std::cout << "computing garbage " << std::endl;
-        double garbage_pow = std::pow(bla.dValue, 3.01);
-        std::cout << "done computing garbage " << bla.iValue << std::endl;
-
-
-        std::cout << "computing position " << std::endl;
-
-
-        double position = jerk_ * 0.5 * (1./3.) * pow3 +
-                initial_acceleration_ * 0.5 * pow2 +
-                initial_velocity_ * t +
-                initial_position_;
-
-
-        std::cout << "done computing position " << std::endl;
-
-
-        return position;
     }
 
     Vector find_t_given_velocity(double velocity) const
@@ -229,65 +234,14 @@ public:
     }
     double get_position(double t) const
     {
-        if(t < jerk_duration_)
-        {
-            return LinearDynamics::get_position(t);
-        }
-        else
-        {
-            return LinearDynamics::get_position(jerk_duration_) +
-                    LinearDynamics::get_velocity(jerk_duration_) * (t - jerk_duration_) +
-                    acceleration_limit_ * 0.5 * pow(t - jerk_duration_, 2);
-        }
+            return f_0(0);
     }
 
 //    template<typename Array>
     Vector get_positions(const Vector& times) const
     {
 
-//        std::cout << "beginning ---------------" << std::endl;
-//        std::cout << times.size() << std::endl;
 
-
-//        std::cout << "type: " << typeid(times).name() << std::endl;
-
-//        std::cout << times << std::endl;
-//        std::cout << "done printing ---------------" << std::endl;
-
-        Vector positions(times.size());
-
-
-//        std::cout << "printing positions ---------------" << std::endl;
-//        std::cout << positions << std::endl;
-//        std::cout << "done positions ---------------" << std::endl;
-
-
-//        positions.resize(times.size());
-        for(size_t i = 0; i < times.size(); i++)
-        {
-//            std::cout << "getting time " << std::endl;
-            double time = times[i];
-
-//            std::cout << "getting position " << std::endl;
-
-
-
-            double position = get_position(time);
-//            std::cout << "setting positions" << std::endl;
-
-//            std::cout << "setting position " << std::endl;
-
-            positions[i] = position;
-
-//            std::cout << "done " << std::endl;
-
-//            std::cout << "done setting positions" << std::endl;
-
-        }
-
-//        std::cout << "end ---------------" << std::endl;
-
-        return positions;
     }
 
     Vector find_t_given_velocity(double velocity) const
@@ -347,24 +301,14 @@ public:
     {
 
 
-        Vector times = Vector::Zero(1);
+        Vector dummy1;
+        Vector dummy2;
+        Vector dummy3;
+        double dummy5;
 
-        Vector dummy2;// = get_positions(Vector::Zero(1));
+        double position = get_position(0);
 
-
-        Vector positions(times.size());
-
-        for(size_t i = 0; i < times.size(); i++)
-        {
-            double time = times[i];
-            double position = get_position(0);
-            positions[i] = position;
-        }
-
-
-
-
-        Vector dummy;
+        Vector dummy6;
 
         return false;
     }
