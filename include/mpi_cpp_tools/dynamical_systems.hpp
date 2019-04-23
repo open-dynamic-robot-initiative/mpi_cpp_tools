@@ -3,6 +3,7 @@
 #include <cmath>
 #include <math.h>
 #include <Eigen/Eigen>
+#include <iostream>
 
 #include "mpi_cpp_tools/basic_tools.hpp"
 #include "mpi_cpp_tools/math.hpp"
