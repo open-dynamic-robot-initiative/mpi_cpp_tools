@@ -45,14 +45,14 @@ public:
     }
     double get_velocity(mct::NonnegDouble t) const
     {
-        return jerk_ * 0.5 * pow(t,2) +
+        return jerk_ * 0.5 * t * t +
                 initial_acceleration_ * t +
                 initial_velocity_;
     }
     double get_position(mct::NonnegDouble t) const
     {
-        return jerk_ * 0.5 * 1./3. * pow(t, 3) +
-                initial_acceleration_ * 0.5 * pow(t, 2) +
+        return jerk_ * 0.5 * 1./3. * t * t * t +
+                initial_acceleration_ * 0.5 * t * t +
                 initial_velocity_ * t +
                 initial_position_;
     }
@@ -63,7 +63,7 @@ public:
         double b = initial_acceleration_;
         double c = initial_velocity_ - velocity;
 
-        double determinant = pow(b, 2) - 4 * a * c;
+        double determinant = b * b - 4 * a * c;
 
         Vector solutions(0);
         if(a == 0)
@@ -204,7 +204,7 @@ public:
         {
             return LinearDynamics::get_position(jerk_duration_) +
                     LinearDynamics::get_velocity(jerk_duration_) * (t - jerk_duration_) +
-                    acceleration_limit_ * 0.5 * pow(t - jerk_duration_, 2);
+                    acceleration_limit_ * 0.5 * (t - jerk_duration_) * (t - jerk_duration_);
         }
     }
 
