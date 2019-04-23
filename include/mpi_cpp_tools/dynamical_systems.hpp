@@ -345,63 +345,26 @@ public:
                              const double& max_position,
                              double& certificate_time) const
     {
-        if(max_velocity == std::numeric_limits<double>::infinity() ||
-                max_position == std::numeric_limits<double>::infinity())
-        {
-            return false;
-        }
-        if(jerk_ > 0)
-        {
-            certificate_time = std::numeric_limits<double>::infinity();
-            return true;
-        }
-        if(jerk_ == 0)
-        {
-            throw std::domain_error("not implemented for jerk == 0");
-        }
 
-        print_parameters();
 
-        if(initial_velocity_ > max_velocity &&
-                initial_position_ > max_position)
+        Vector times = Vector::Zero(1);
+
+        Vector dummy2;// = get_positions(Vector::Zero(1));
+
+
+        Vector positions(times.size());
+
+        for(size_t i = 0; i < times.size(); i++)
         {
-            certificate_time = 0;
-            return true;
+            double time = times[i];
+            double position = get_position(0);
+            positions[i] = position;
         }
 
-        Vector t_given_zero_velocity = find_t_given_velocity(0);
-        if(t_given_zero_velocity.size() > 0)
-        {
-            Vector position_given_zero_velocity =
-                    get_positions(t_given_zero_velocity);
 
-            Vector::Index max_index;
-            double max_achieved_position =
-                    position_given_zero_velocity.maxCoeff(&max_index);
-            if(max_achieved_position < max_position)
-            {
-                return false;
-            }
-            if(max_velocity < 0)
-            {
-                certificate_time = t_given_zero_velocity[max_index];
-                return true;
-            }
-        }
 
-        Vector t_given_max_velocity =
-                find_t_given_velocity(max_velocity);
-        Vector position_given_max_velocity =
-                get_positions(t_given_max_velocity);
 
-        for(size_t i = 0; i < position_given_max_velocity.size(); i++)
-        {
-            if(position_given_max_velocity[i] > max_position)
-            {
-                certificate_time = t_given_max_velocity[i];
-                return true;
-            }
-        }
+        Vector dummy;
 
         return false;
     }
@@ -453,19 +416,10 @@ double find_max_admissible_acceleration(
                                                       -1,
                                                       -1,
                                                       90);
-
     dynamics.will_exceed_jointly(6, -std::numeric_limits<double>::infinity());
 
 
-
-    double lower;
-    double upper;
-    double middle;
-    for(size_t i = 0; i < 20; i++)
-    {
-        double middle = (lower + upper) / 2.0;
-    }
-    return lower;
+    double dummy[4];
 }
 
 
@@ -478,7 +432,7 @@ double find_min_admissible_acceleration(
         const double& abs_jerk_limit,
         const double& abs_acceleration_limit)
 {
-    double min_position_ = min_position;
+    double dummy;
     find_max_admissible_acceleration(0, 0, 0, 0, 0, 0);
 }
 
