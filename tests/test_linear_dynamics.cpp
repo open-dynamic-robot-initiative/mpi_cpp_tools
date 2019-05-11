@@ -48,13 +48,16 @@ TEST(linear_dynamics, check_linearity)
     {
         EXPECT_TRUE(approx_equal(linear_dynamics_a.get_acceleration(t) +
                                  linear_dynamics_b.get_acceleration(t),
-                                 linear_dynamics_sum.get_acceleration(t)));
+                                 linear_dynamics_sum.get_acceleration(t),
+                                 1e-6));
         EXPECT_TRUE(approx_equal(linear_dynamics_a.get_velocity(t) +
                                  linear_dynamics_b.get_velocity(t),
-                                 linear_dynamics_sum.get_velocity(t)));
+                                 linear_dynamics_sum.get_velocity(t),
+                                 1e-6));
         EXPECT_TRUE(approx_equal(linear_dynamics_a.get_position(t) +
                                  linear_dynamics_b.get_position(t),
-                                 linear_dynamics_sum.get_position(t)));
+                                 linear_dynamics_sum.get_position(t),
+                                 1e-6));
     }
 }
 
