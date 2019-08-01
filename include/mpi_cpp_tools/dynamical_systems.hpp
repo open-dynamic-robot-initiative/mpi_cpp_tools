@@ -65,7 +65,7 @@ public:
 
         double determinant = b * b - 4 * a * c;
 
-        Vector solutions(0);
+        Vector solutions(Vector::Index(0));
         if(a == 0)
         {
             if(b != 0)
@@ -88,7 +88,7 @@ public:
             solutions[1] = (-b - determinant_sqrt) / 2 / a;
         }
 
-        Vector positive_solutions(0);
+        Vector positive_solutions(Vector::Index(0));
         for(size_t i = 0; i < solutions.size(); i++)
         {
             if(solutions[i] >= 0)
@@ -224,7 +224,7 @@ public:
         Vector potential_solutions =
                 LinearDynamics::find_t_given_velocity(velocity);
 
-        Vector solutions(0);
+        Vector solutions(Vector::Index(0));
         for(size_t i = 0; i < potential_solutions.size(); i++)
         {
             if(potential_solutions[i] <= jerk_duration_)
