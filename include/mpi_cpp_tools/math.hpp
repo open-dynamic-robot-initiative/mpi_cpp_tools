@@ -28,7 +28,7 @@ Vector clamp(const Vector &vector,
 {
     Vector clamped_vector = vector;
 
-    for(size_t i = 0; i < clamped_vector.size(); i++)
+    for(size_t i = 0; i < size_t(clamped_vector.size()); i++)
     {
         clamped_vector[i] = clamp(clamped_vector[i], limit_a, limit_b);
     }
@@ -62,7 +62,7 @@ bool approx_equal(double x, double y, double epsilon = 1e-10)
 template <typename Vector>
 bool contains(Vector v, double x)
 {
-    for (size_t i = 0; i < v.size(); i++)
+    for (size_t i = 0; i < size_t(v.size()); i++)
     {
         if (mct::approx_equal(v[i], x))
         {

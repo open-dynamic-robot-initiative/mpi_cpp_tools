@@ -97,7 +97,7 @@ public:
         }
 
         Vector positive_solutions(Vector::Index(0));
-        for(size_t i = 0; i < solutions.size(); i++)
+        for(int i = 0; i < solutions.size(); i++)
         {
             if(solutions[i] >= 0)
             {
@@ -220,7 +220,7 @@ public:
     Array get_positions(const Array& times) const
     {
         Array positions(times.size());
-        for(size_t i = 0; i < times.size(); i++)
+        for(size_t i = 0; i < size_t(times.size()); i++)
         {
             positions[i] = get_position(times[i]);
         }
@@ -233,7 +233,7 @@ public:
                 LinearDynamics::find_t_given_velocity(velocity);
 
         Vector solutions(Vector::Index(0));
-        for(size_t i = 0; i < potential_solutions.size(); i++)
+        for(int i = 0; i < potential_solutions.size(); i++)
         {
             if(potential_solutions[i] <= jerk_duration_)
             {
@@ -340,7 +340,7 @@ public:
         Vector position_given_max_velocity =
                 get_positions(t_given_max_velocity);
 
-        for(size_t i = 0; i < position_given_max_velocity.size(); i++)
+        for(int i = 0; i < position_given_max_velocity.size(); i++)
         {
             if(position_given_max_velocity[i] > max_position)
             {
